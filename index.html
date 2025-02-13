@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Câmera com Canvas</title>
+</head>
+
+<body>
+    <h1>Exemplo de Câmera no Canvas !!!!</h1>
+
+    <!-- Apenas o canvas para exibir a câmera -->
+    <canvas id="canvas" width="640" height="480"></canvas>
+
+    <script>
+        // Acessar o canvas e seu contexto
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Acessar a câmera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                // Criar um elemento de vídeo invisível para capturar os frames
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
+
+                // Função para desenhar no canvas
+                function draw() {
+                    // Limpar o canvas
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Aplicar a transformação para espelhar horizontalmente
+                    ctx.save(); // Salva o estado atual do contexto
+                    ctx.scale(-1, 1); // Espelha horizontalmente
+                    ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+                    ctx.restore(); // Restaura o estado original do contexto
+
+                    // Continuar desenhando a cada 30ms (aproximadamente 30 fps)
+                    requestAnimationFrame(draw);
+                }
+
+                // Iniciar a captura e desenho
+                draw();
+            })
+            .catch((err) => {
+                console.error("Erro ao acessar a câmera: ", err);
+            });
+    </script>
+</body>
+
+</html>

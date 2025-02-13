@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Camera to Canvas 2</title>
+    <title>Camera to Canvas 3</title>
     <style>
         canvas {
             border: 1px solid black;
@@ -35,7 +35,15 @@
         // Access the camera and stream video to the video element
         async function startCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                // Specify the front camera using `facingMode: 'user'`
+                const constraints = {
+                    video: {
+                        facingMode: 'user', // Use the front camera
+                        width: { ideal: 640 }, // Optional: Set resolution
+                        height: { ideal: 480 }
+                    }
+                };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
 
                 // Wait for the video to load and then set canvas dimensions

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Camera to Canvas 3</title>
+    <title>Real-Time Camera Capture</title>
     <style>
         canvas {
             border: 1px solid black;
@@ -15,6 +15,7 @@
 </head>
 
 <body>
+    <h1>Come on!!</h1>
     <!-- Video element to capture the camera feed (hidden) -->
     <video id="video" autoplay playsinline style="display:none;"></video>
     <!-- Canvas element to display the camera feed -->
@@ -43,6 +44,8 @@
                         height: { ideal: 480 }
                     }
                 };
+
+                // Request camera access
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
 
@@ -53,12 +56,15 @@
                 };
             } catch (error) {
                 console.error('Error accessing the camera:', error);
+                alert('Unable to access the camera. Please ensure you have granted permission.');
             }
         }
 
         // Draw the video feed onto the canvas
         function drawVideoToCanvas() {
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            }
             requestAnimationFrame(drawVideoToCanvas); // Continuously update the canvas
         }
 

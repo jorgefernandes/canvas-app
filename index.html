@@ -8,7 +8,7 @@
 </head>
 
 <body>
-    <h1>Exemplo de Câmera no Canvas !!!!</h1>
+    <h1>Exemplo de Câmera no Canvas</h1>
 
     <!-- Apenas o canvas para exibir a câmera -->
     <canvas id="canvas" width="640" height="480"></canvas>
@@ -31,11 +31,8 @@
                     // Limpar o canvas
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                    // Aplicar a transformação para espelhar horizontalmente
-                    ctx.save(); // Salva o estado atual do contexto
-                    ctx.scale(-1, 1); // Espelha horizontalmente
-                    ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
-                    ctx.restore(); // Restaura o estado original do contexto
+                    // Desenhar o vídeo no canvas de forma espelhada manualmente
+                    ctx.drawImage(video, canvas.width, 0, -canvas.width, canvas.height);
 
                     // Continuar desenhando a cada 30ms (aproximadamente 30 fps)
                     requestAnimationFrame(draw);

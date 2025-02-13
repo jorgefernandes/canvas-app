@@ -1,50 +1,61 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Câmera com Canvas</title>
+    <title>Camera to Canvas 2</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Exemplo de Câmera no Canvas</h1>
-
-    <!-- Apenas o canvas para exibir a câmera -->
-    <canvas id="canvas" width="640" height="480"></canvas>
+    <!-- Video element to capture the camera feed (hidden) -->
+    <video id="video" autoplay playsinline style="display:none;"></video>
+    <!-- Canvas element to display the camera feed -->
+    <canvas id="canvas"></canvas>
 
     <script>
-        // Acessar o canvas e seu contexto
+        // Get references to the video and canvas elements
+        const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
+        const context = canvas.getContext('2d');
 
-        // Acessar a câmera
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then((stream) => {
-                // Criar um elemento de vídeo invisível para capturar os frames
-                const video = document.createElement('video');
+        // Set canvas dimensions to match video feed
+        function setCanvasDimensions() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+        }
+
+        // Access the camera and stream video to the video element
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 video.srcObject = stream;
-                video.play();
 
-                // Função para desenhar no canvas
-                function draw() {
-                    // Limpar o canvas antes de cada novo desenho
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // Wait for the video to load and then set canvas dimensions
+                video.onloadedmetadata = () => {
+                    setCanvasDimensions();
+                    drawVideoToCanvas();
+                };
+            } catch (error) {
+                console.error('Error accessing the camera:', error);
+            }
+        }
 
-                    // Desenhar o vídeo no canvas de forma espelhada manualmente
-                    // Desenhar o vídeo à direita, e usando a largura negativa para espelhá-lo
-                    ctx.drawImage(video, canvas.width, 0, -canvas.width, canvas.height);
+        // Draw the video feed onto the canvas
+        function drawVideoToCanvas() {
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            requestAnimationFrame(drawVideoToCanvas); // Continuously update the canvas
+        }
 
-                    // Continuar desenhando a cada 30ms (aproximadamente 30 fps)
-                    requestAnimationFrame(draw);
-                }
-
-                // Iniciar a captura e desenho
-                draw();
-            })
-            .catch((err) => {
-                console.error("Erro ao acessar a câmera: ", err);
-            });
+        // Start the camera when the page loads
+        startCamera();
     </script>
 </body>
 

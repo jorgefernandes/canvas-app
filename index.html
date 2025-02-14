@@ -4,85 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-Time Camera Capture</title>
-    <style>
-        canvas {
-            border: 1px solid black;
-            max-width: 100%;
-            height: auto;
-        }
-    </style>
+    <title>Camera Test</title>
 </head>
 
 <body>
-    <h1>Camera in Canvas</h1>
-    <!-- Video element to capture the camera feed (hidden) -->
-    <video id="video" autoplay playsinline style="display:none;"></video>
-    <!-- Canvas element to display the camera feed -->
-    <canvas id="canvas"></canvas>
+    <h1>Camera test</h1>
+    <video id="video" autoplay playsinline></video>
 
     <script>
-        // Get references to the video and canvas elements
         const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const context = canvas.getContext('2d');
 
-        // Set canvas dimensions to match video feed
-        function setCanvasDimensions() {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-        }
-
-        // Access the camera and stream video to the video element
         async function startCamera() {
             try {
-                // Specify the front camera using `facingMode: 'user'`
-                const constraints = {
-                    video: {
-                        facingMode: 'user', // Use the front camera
-                        width: { ideal: 640 }, // Optional: Set resolution
-                        height: { ideal: 480 }
-                    }
-                };
-
-                // Request camera access
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
                 video.srcObject = stream;
-
-                // Wait for the video to load and then set canvas dimensions
-                video.onloadedmetadata = () => {
-                    setCanvasDimensions();
-                    drawVideoToCanvas();
-                };
             } catch (error) {
                 console.error('Error accessing the camera:', error);
                 alert('Unable to access the camera. Please ensure you have granted permission.');
             }
         }
 
-        // Draw the video feed onto the canvas (flipped horizontally)
-        function drawVideoToCanvas() {
-            if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                // Clear the canvas
-                context.clearRect(0, 0, canvas.width, canvas.height);
-
-                // Save the current canvas state
-                context.save();
-
-                // Flip the canvas horizontally
-                context.translate(canvas.width, 0);
-                context.scale(-1, 1);
-
-                // Draw the video frame
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                // Restore the canvas state
-                context.restore();
-            }
-            requestAnimationFrame(drawVideoToCanvas); // Continuously update the canvas
-        }
-
-        // Start the camera when the page loads
         startCamera();
     </script>
 </body>

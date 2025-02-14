@@ -15,7 +15,7 @@
 </head>
 
 <body>
-    <h1>Come on!!</h1>
+    <h1>Camera in Canvas</h1>
     <!-- Video element to capture the camera feed (hidden) -->
     <video id="video" autoplay playsinline style="display:none;"></video>
     <!-- Canvas element to display the camera feed -->
@@ -60,10 +60,24 @@
             }
         }
 
-        // Draw the video feed onto the canvas
+        // Draw the video feed onto the canvas (flipped horizontally)
         function drawVideoToCanvas() {
             if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                // Clear the canvas
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Save the current canvas state
+                context.save();
+
+                // Flip the canvas horizontally
+                context.translate(canvas.width, 0);
+                context.scale(-1, 1);
+
+                // Draw the video frame
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Restore the canvas state
+                context.restore();
             }
             requestAnimationFrame(drawVideoToCanvas); // Continuously update the canvas
         }

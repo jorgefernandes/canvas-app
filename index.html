@@ -4,11 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Camera Test</title>
+    <title>Real-Time Camera Capture</title>
+    <style>
+        /* Flip the video horizontally */
+        #video {
+            transform: scaleX(-1);
+        }
+
+        /* Optional: Add some styling to the video element */
+        #video {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid black;
+        }
+    </style>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 </head>
 
 <body>
-    <h1>Camera test</h1>
+    <!-- Video element to capture the camera feed -->
     <video id="video" autoplay playsinline></video>
 
     <script>
@@ -16,7 +30,17 @@
 
         async function startCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                // Specify the front camera using `facingMode: 'user'`
+                const constraints = {
+                    video: {
+                        facingMode: 'user', // Use the front camera
+                        width: { ideal: 640 }, // Optional: Set resolution
+                        height: { ideal: 480 }
+                    }
+                };
+
+                // Request camera access
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
             } catch (error) {
                 console.error('Error accessing the camera:', error);
@@ -24,6 +48,7 @@
             }
         }
 
+        // Start the camera when the page loads
         startCamera();
     </script>
 </body>

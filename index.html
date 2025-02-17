@@ -4,52 +4,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-Time Camera Capture</title>
+    <title>Camera Photo Capture</title>
     <style>
-        /* Flip the video horizontally */
+        /* Flip the video horizontally for front camera */
         #video {
             transform: scaleX(-1);
-        }
-
-        /* Optional: Add some styling to the video element */
-        #video {
             max-width: 100%;
             height: auto;
             border: 1px solid black;
         }
+
+        /* Button styling */
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        /* Canvas styling */
+        #canvas {
+            display: none;
+            /* Hide the canvas */
+        }
     </style>
-    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 </head>
 
 <body>
     <!-- Video element to capture the camera feed -->
     <video id="video" autoplay playsinline></video>
+    <!-- Canvas element to capture photos -->
+    <canvas id="canvas"></canvas>
+
+    <!-- Buttons for actions -->
+    <button id="switchCamera">Switch Camera</button>
+    <button id="takePhoto">Take Photo</button>
 
     <script>
         const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const switchCameraButton = document.getElementById('switchCamera');
+        const takePhotoButton = document.getElementById('takePhoto');
 
-        async function startCamera() {
+        let currentFacingMode = 'user'; // 'user' for front camera, 'environment' for back camera
+
+        // Set canvas dimensions to match video feed
+        function setCanvasDimensions() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+        }
+
+        // Access the camera and stream video to the video element
+        async function startCamera(facingMode) {
             try {
-                // Specify the front camera using `facingMode: 'user'`
                 const constraints = {
                     video: {
-                        facingMode: 'user', // Use the front camera
+                        facingMode: facingMode, // Use the specified camera
                         width: { ideal: 640 }, // Optional: Set resolution
                         height: { ideal: 480 }
                     }
                 };
 
+                // Stop the previous stream if it exists
+                if (video.srcObject) {
+                    video.srcObject.getTracks().forEach(track => track.stop());
+                }
+
                 // Request camera access
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
+
+                // Wait for the video to load and then set canvas dimensions
+                video.onloadedmetadata = () => {
+                    setCanvasDimensions();
+                };
             } catch (error) {
                 console.error('Error accessing the camera:', error);
                 alert('Unable to access the camera. Please ensure you have granted permission.');
             }
         }
 
-        // Start the camera when the page loads
-        startCamera();
+        // Switch between front and back cameras
+        switchCameraButton.addEventListener('click', () => {
+            currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+            startCamera(currentFacingMode);
+        });
+
+        // Take a photo and send it to the API
+        takePhotoButton.addEventListener('click', () => {
+            // Draw the current video frame onto the canvas
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert the canvas image to a data URL (base64)
+            const photoDataUrl = canvas.toDataURL('image/jpeg');
+
+            // Send the photo to the API
+            sendPhotoToApi(photoDataUrl);
+        });
+
+        // Function to send the photo to an API
+        async function sendPhotoToApi(photoDataUrl) {
+            try {
+                // Convert the data URL to a Blob
+                const blob = await fetch(photoDataUrl).then(res => res.blob());
+
+                // Create a FormData object and append the photo
+                const formData = new FormData();
+                formData.append('photo', blob, 'photo.jpg');
+
+                // Send the photo to the API (replace with your API endpoint)
+                const response = await fetch('https://your-api-endpoint.com/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    alert('Photo successfully sent to the API!');
+                } else {
+                    alert('Failed to send photo to the API.');
+                }
+            } catch (error) {
+                console.error('Error sending photo to the API:', error);
+                alert('An error occurred while sending the photo.');
+            }
+        }
+
+        // Start the front camera by default when the page loads
+        startCamera(currentFacingMode);
     </script>
 </body>
 

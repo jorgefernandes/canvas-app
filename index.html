@@ -212,6 +212,9 @@
         // const switchCameraButton = document.getElementById('switchCamera');
         const takePhotoButton = document.getElementById('takePhoto');
 
+        let isFrontCamera = true; // Default: front camera
+
+
         let currentFacingMode = 'environment'; // 'user' for front camera, 'environment' for back camera
 
         // Set canvas dimensions to match video feed
@@ -285,6 +288,13 @@
 
             // Corrige o espelhamento horizontal
             context.save();
+
+            // Flip ONLY if using the front camera
+            if (isFrontCamera) {
+                context.translate(300, 0);
+                context.scale(-1, 1);
+            }
+
             context.translate(cropWidth, 0);
             context.scale(-1, 1);
 

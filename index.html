@@ -5,39 +5,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Camera Photo Capture</title>
+
     <style>
-        /* Flip the video horizontally for front camera */
+        .selfie-bg {
+            border: 1px solid #000;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            background-image: url("{{ asset('images/bg-kyc-camera.png') }}");
+            background-position: center;
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            left: 0;
+        }
+
+        .wrapper {
+            position: relative;
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+
         #video {
             transform: scaleX(-1);
             max-width: 100%;
-            height: auto;
             border: 1px solid black;
-        }
-
-        /* Button styling */
-        button {
-            margin: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-        }
-
-        /* Canvas styling */
-        #canvas {
-            display: none;
-            /* Hide the canvas */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
         }
     </style>
 </head>
 
-<body>
-    <!-- Video element to capture the camera feed -->
-    <video id="video" autoplay playsinline></video>
-    <!-- Canvas element to capture photos -->
-    <canvas id="canvas"></canvas>
+<body style="margin: 0">
+    <div class="wrapper">
+        <div style="display: flex; height: 100vh;">
+            <div class="selfie-bg"></div>
+            <video id="video" class="masked-image" autoplay playsinline></video>
+            <canvas style="display: none" id="canvas"></canvas>
+        </div>
 
-    <!-- Buttons for actions -->
-    <button id="switchCamera">Switch Camera</button>
-    <button id="takePhoto">Take Photo</button>
+        <div style="margin-top: 20px; z-index: 2;">
+            <button id="switchCamera">Switch Camera</button>
+            <button id="takePhoto">Take Photo</button>
+        </div>
+    </div>
+    <div id="photo"></div>
 
     <script>
         const video = document.getElementById('video');
@@ -92,14 +109,57 @@
 
         // Take a photo and send it to the API
         takePhotoButton.addEventListener('click', () => {
-            // Draw the current video frame onto the canvas
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // Convert the canvas image to a data URL (base64)
+            const cropWidth = 247;
+            const cropHeight = 318;
+            const videoWidth = video.videoWidth;
+            const videoHeight = video.videoHeight;
+
+            // Pegamos as dimensões visíveis do <video>
+            const displayWidth = video.clientWidth;
+            const displayHeight = video.clientHeight;
+
+            // Calculamos a escala proporcional com base na ALTURA (mais confiável)
+            const scaleY = videoHeight / displayHeight;
+            const scaleX = scaleY; // Mantemos a proporção exata horizontalmente
+
+            // Ajustamos a posição para recortar corretamente no centro
+            const offsetX = (videoWidth - (cropWidth * scaleX)) / 2;
+            const offsetY = (videoHeight - (cropHeight * scaleY)) / 2;
+
+            // Define o tamanho do canvas com base no recorte
+            canvas.width = cropWidth;
+            canvas.height = cropHeight;
+
+            // Limpa o canvas antes de desenhar
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Corrige o espelhamento horizontal
+            context.save();
+            context.translate(cropWidth, 0);
+            context.scale(-1, 1);
+
+            // Desenha APENAS a parte correta do vídeo respeitando a escala proporcional
+            context.drawImage(video, offsetX, offsetY, cropWidth * scaleX, cropHeight * scaleY, 0, 0, cropWidth, cropHeight);
+
+            context.restore();
+
+            // // Draw the current video frame onto the canvas
+            // context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            //
+            // // Convert the canvas image to a data URL (base64)
             const photoDataUrl = canvas.toDataURL('image/jpeg');
+            //
+            const img = new Image();
 
-            // Send the photo to the API
-            sendPhotoToApi(photoDataUrl);
+            img.src = photoDataUrl;
+            // img.width = 480;
+            //
+            // const photo = document.getElementById('photo');
+            //
+            photo.appendChild(img);
+            // // Send the photo to the API
+            // // sendPhotoToApi(photoDataUrl);
         });
 
         // Function to send the photo to an API

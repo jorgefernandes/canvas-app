@@ -212,7 +212,7 @@
         // const switchCameraButton = document.getElementById('switchCamera');
         const takePhotoButton = document.getElementById('takePhoto');
 
-        let isFrontCamera = true; // Default: front camera
+        let isFrontCamera = false; // Default: front camera
 
 
         let currentFacingMode = 'environment'; // 'user' for front camera, 'environment' for back camera
@@ -237,6 +237,13 @@
                 // Stop the previous stream if it exists
                 if (video.srcObject) {
                     video.srcObject.getTracks().forEach(track => track.stop());
+                }
+
+                // Flip only the front camera preview
+                if (isFrontCamera) {
+                    video.style.transform = "scaleX(-1)";
+                } else {
+                    video.style.transform = "scaleX(1)"; // Keep back camera normal
                 }
 
                 // Request camera access

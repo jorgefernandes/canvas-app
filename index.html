@@ -1,172 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Camera Photo Capture</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>PDF com Pinch Zoom</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
-        .selfie-bg {
-            width: 100vw;
-            height: 100vh;
-            margin: 0;
-            background-image: url("images/bg-kyc-camera.png");
-            background-position: center;
-            position: absolute;
-            z-index: 1;
-            top: 0;
-            left: 0;
-        }
-
-        .doc-bg {
-            width: 100vw;
-            height: 100vh;
-            margin: 0;
-            background-image: url("images/bg-kyc-camera-doc.png");
-            background-position: center;
-            position: absolute;
-            z-index: 1;
-            top: 0;
-            left: 0;
-        }
-
-        .wrapper {
+        #pdf-container {
+            touch-action: none;
+            /* Evita interferência com o zoom padrão */
+            overflow: auto;
+            width: 100%;
+            height: 90vh;
             position: relative;
-            display: flex;
-            height: 100vh;
-            flex-direction: column;
         }
 
-        #video,
-        #video2 {
-            transform: scaleX(-1);
-            max-width: 100%;
-            border: 1px solid black;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            object-fit: cover;
-        }
-
-        .take-photo {
-            width: 72px;
-            height: 72px;
-            border-radius: 100%;
-            border: 3px solid white;
-            position: absolute;
-            z-index: 3;
-            bottom: 48px;
-            left: 50%;
-            margin-left: -36px;
-            background-color: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            &::before {
-                content: '';
-                width: 56px;
-                height: 56px;
-                background: white;
-                background-color: #fff;
-                display: block;
-                border-radius: 100%;
-            }
-        }
-
-        .navigation-bar {
-            height: 81px;
-            background-color: #030517;
-            position: absolute;
-            z-index: 4;
-            width: 100%;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .navigation-bar .text {
-            flex: 1;
-            text-align: center;
-            font-family: 'Open Sans';
-        }
-
-        .wrapper-photo-took {
-            display: flex;
-            justify-content: flex-start;
-            width: 100%;
-            padding-top: 66px;
-            flex-direction: column;
-            align-items: center;
-
-            @media (max-width: 375px) {
-                padding-top: 36px;
-            }
-        }
-
-        .wrapper-photo-took-title {
-            line-height: 1.3em;
-            font-size: 24px;
-        }
-
-        .wrapper-photo-took-image {
-            width: 247px;
-            height: 318px;
-            border: 1px solid #000;
-            margin-top: 67px;
-            margin-bottom: 127px;
-
-            @media (max-width: 375px) {
-                margin-top: 37px;
-                margin-bottom: 57px;
-            }
-        }
-
-        .wrapper-photo-took-btn-continuar {
-            display: block;
-            width: 327px;
-            height: 35px;
-            flex-shrink: 0;
-            border-radius: 2px;
-            background-color: #030517;
-            text-transform: uppercase;
-            color: #FFF;
-            text-decoration: none;
-            text-align: center;
-            line-height: 2.3em;
-        }
-
-        .wrapper-photo-took-btn-another-photo {
-            color: #397EC4;
-            text-align: center;
-            font-family: "Open Sans";
-            font-size: 14px;
-            font-style: normal;
-            font-weight: 700;
-            line-height: normal;
-            display: block;
-            padding: 15px 0;
+        canvas {
+            transform-origin: 0 0;
+            /* Mantém o ponto de origem no canto superior esquerdo */
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-    <script type="text/javascript">
-        var url = 'images/Nubank_2025-02-10.pdf';
+</head>
 
+<body>
+    <h2>PDF com Pinch Zoom</h2>
+    <div id="pdf-container"></div>
+
+    <script>
+        var url = 'images/Nubank_2025-02-10.pdf'; // Caminho do PDF
+        var pdfContainer = document.getElementById("pdf-container");
+        var scaleFactor = 1; // Fator de escala inicial
+        var startDistance = 0; // Distância inicial dos dedos
+
+        // Carregar o PDF
         pdfjsLib.getDocument(url).promise.then(function (pdf) {
-            var container = document.getElementById('pdf-container');
-
             for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                 pdf.getPage(pageNum).then(function (page) {
                     var canvas = document.createElement("canvas");
-                    container.appendChild(canvas);
+                    pdfContainer.appendChild(canvas);
                     var context = canvas.getContext("2d");
-                    var viewport = page.getViewport({ scale: .55 });
+                    var viewport = page.getViewport({ scale: 1 });
 
-                    canvas.width = 327;
+                    canvas.width = viewport.width;
                     canvas.height = viewport.height;
 
                     var renderContext = { canvasContext: context, viewport: viewport };
@@ -174,215 +50,38 @@
                 });
             }
         });
-    </script>
-</head>
 
-<body style="margin: 0">
-    <div class="wrapper">
-        <!-- <iframe src="images/Nubank_2025-02-10.pdf" type="application/pdf" width="500" height="600px"></iframe> -->
-
-        <div id="pdf-container" style="overflow: scroll; height: 477px"></div>
-
-        <!-- <div id="step1">
-            <div class="navigation-bar">
-                <div><button>v</button>
-                </div>
-                <span class="text">Tirar selfie</span>
-            </div>
-            <div style="display: flex; height: 100vh;">
-                <div class="selfie-bg"></div>
-                <video id="video" class="masked-image" autoplay playsinline></video>
-                <canvas style="display: none" id="canvas"></canvas>
-            </div>
-            <button class="take-photo" id="takePhoto"></button>
-        </div>
-
-        <div id="step2" style="display: none">
-            <div class="navigation-bar">
-                <div><button>v</button>
-                </div>
-                <span class="text">Conferir selfie</span>
-            </div>
-            <div style="display: flex; height: 100vh; padding-top: 82px;">
-                <div class="wrapper-photo-took">
-                    <span class="wrapper-photo-took-title">Sua Selfie ficou boa?</span>
-
-                    <div id="photo" class="wrapper-photo-took-image"></div>
-
-                    <div>
-                        <a href="" class="wrapper-photo-took-btn-continuar">Sim! Continuar</a>
-                        <a href="" class="wrapper-photo-took-btn-another-photo">Quero tirar a foto novamente</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="step3" style="display: none">
-            <div class="navigation-bar">
-                <div><button>v</button>
-                </div>
-                <span class="text">Captura do Documento</span>
-            </div>
-            <div style="display: flex; height: 100vh;">
-                <div class="doc-bg"></div>
-                <video id="video2" class="masked-image" autoplay playsinline></video>
-                <canvas style="display: none" id="canvas"></canvas>
-            </div>
-            <button class="take-photo" id="takePhoto"></button>
-        </div> -->
-    </div>
-
-    <!-- <script>
-        const video = document.getElementById('video2');
-        const canvas = document.getElementById('canvas');
-        const context = canvas.getContext('2d');
-        // const switchCameraButton = document.getElementById('switchCamera');
-        const takePhotoButton = document.getElementById('takePhoto');
-
-        let isFrontCamera = false; // Default: front camera
-
-
-        let currentFacingMode = 'environment'; // 'user' for front camera, 'environment' for back camera
-
-        // Set canvas dimensions to match video feed
-        function setCanvasDimensions() {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+        // Função para calcular a distância entre dois dedos
+        function getDistance(event) {
+            var dx = event.touches[0].clientX - event.touches[1].clientX;
+            var dy = event.touches[0].clientY - event.touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
         }
 
-        // Access the camera and stream video to the video element
-        async function startCamera(facingMode) {
-            try {
-                const constraints = {
-                    video: {
-                        facingMode: facingMode, // Use the specified camera
-                        width: { ideal: 640 }, // Optional: Set resolution
-                        height: { ideal: 480 }
-                    }
-                };
-
-                // Stop the previous stream if it exists
-                if (video.srcObject) {
-                    video.srcObject.getTracks().forEach(track => track.stop());
-                }
-
-                // Flip only the front camera preview
-                if (isFrontCamera) {
-                    video.style.transform = "scaleX(-1)";
-                } else {
-                    video.style.transform = "scaleX(1)"; // Keep back camera normal
-                }
-
-                // Request camera access
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                video.srcObject = stream;
-
-                // Wait for the video to load and then set canvas dimensions
-                video.onloadedmetadata = () => {
-                    setCanvasDimensions();
-                };
-            } catch (error) {
-                console.error('Error accessing the camera:', error);
-                alert('Unable to access the camera. Please ensure you have granted permission.');
+        // Evento de toque inicial (pinch start)
+        pdfContainer.addEventListener("touchstart", function (event) {
+            if (event.touches.length === 2) { // Se houver dois dedos na tela
+                startDistance = getDistance(event);
             }
-        }
-
-        // Switch between front and back cameras
-        // switchCameraButton.addEventListener('click', () => {
-        //     currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
-        //     startCamera(currentFacingMode);
-        // });
-
-        // Take a photo and send it to the API
-        takePhotoButton.addEventListener('click', () => {
-
-            const cropWidth = 247;
-            const cropHeight = 318;
-            const videoWidth = video.videoWidth;
-            const videoHeight = video.videoHeight;
-
-            // Pegamos as dimensões visíveis do <video>
-            const displayWidth = video.clientWidth;
-            const displayHeight = video.clientHeight;
-
-            // Calculamos a escala proporcional com base na ALTURA (mais confiável)
-            const scaleY = videoHeight / displayHeight;
-            const scaleX = scaleY; // Mantemos a proporção exata horizontalmente
-
-            // Ajustamos a posição para recortar corretamente no centro
-            const offsetX = (videoWidth - (cropWidth * scaleX)) / 2;
-            const offsetY = (videoHeight - (cropHeight * scaleY)) / 2;
-
-            // Define o tamanho do canvas com base no recorte
-            canvas.width = cropWidth;
-            canvas.height = cropHeight;
-
-            // Limpa o canvas antes de desenhar
-            context.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Corrige o espelhamento horizontal
-            context.save();
-
-            // Flip ONLY if using the front camera
-            if (isFrontCamera) {
-                context.translate(300, 0);
-                context.scale(-1, 1);
-            }
-
-            context.translate(cropWidth, 0);
-            context.scale(-1, 1);
-
-            // Desenha APENAS a parte correta do vídeo respeitando a escala proporcional
-            context.drawImage(video, offsetX, offsetY, cropWidth * scaleX, cropHeight * scaleY, 0, 0, cropWidth, cropHeight);
-
-            context.restore();
-
-            // // Convert the canvas image to a data URL (base64)
-            const photoDataUrl = canvas.toDataURL('image/jpeg');
-            //
-            const img = new Image();
-
-            img.src = photoDataUrl;
-
-            photo.appendChild(img);
-
-            const step1 = document.getElementById('step1');
-            const step2 = document.getElementById('step2');
-
-            step1.style.display = 'none';
-            step2.style.display = 'block';
         });
 
-        // Function to send the photo to an API
-        async function sendPhotoToApi(photoDataUrl) {
-            try {
-                // Convert the data URL to a Blob
-                const blob = await fetch(photoDataUrl).then(res => res.blob());
+        // Evento de movimento (pinch zoom)
+        pdfContainer.addEventListener("touchmove", function (event) {
+            if (event.touches.length === 2) {
+                var newDistance = getDistance(event);
+                var scaleChange = newDistance / startDistance;
 
-                // Create a FormData object and append the photo
-                const formData = new FormData();
-                formData.append('photo', blob, 'photo.jpg');
+                scaleFactor *= scaleChange;
+                scaleFactor = Math.max(0.5, Math.min(3, scaleFactor)); // Limita o zoom (0.5x a 3x)
 
-                // Send the photo to the API (replace with your API endpoint)
-                const response = await fetch('https://your-api-endpoint.com/upload', {
-                    method: 'POST',
-                    body: formData,
-                });
+                // Aplicar escala no container do PDF
+                pdfContainer.style.transform = `scale(${scaleFactor})`;
 
-                if (response.ok) {
-                    alert('Photo successfully sent to the API!');
-                } else {
-                    alert('Failed to send photo to the API.');
-                }
-            } catch (error) {
-                console.error('Error sending photo to the API:', error);
-                alert('An error occurred while sending the photo.');
+                startDistance = newDistance;
+                event.preventDefault(); // Evita zoom do navegador
             }
-        }
-
-        // Start the front camera by default when the page loads
-        startCamera(currentFacingMode);
-    </script> -->
+        });
+    </script>
 </body>
 
 </html>

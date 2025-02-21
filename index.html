@@ -152,15 +152,36 @@
             padding: 15px 0;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script type="text/javascript">
+        var url = 'images/Nubank_2025-02-10.pdf';
+
+        pdfjsLib.getDocument(url).promise.then(function (pdf) {
+            var container = document.getElementById('pdf-container');
+
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                pdf.getPage(pageNum).then(function (page) {
+                    var canvas = document.createElement("canvas");
+                    container.appendChild(canvas);
+                    var context = canvas.getContext("2d");
+                    var viewport = page.getViewport({ scale: .55 });
+
+                    canvas.width = 327;
+                    canvas.height = viewport.height;
+
+                    var renderContext = { canvasContext: context, viewport: viewport };
+                    page.render(renderContext);
+                });
+            }
+        });
+    </script>
 </head>
 
 <body style="margin: 0">
     <div class="wrapper">
         <!-- <iframe src="images/Nubank_2025-02-10.pdf" type="application/pdf" width="500" height="600px"></iframe> -->
 
-        <object data="images/Nubank_2025-02-10.pdf" type="application/pdf" width="100%" height="600px">
-            <p>Seu navegador não suporta visualização de PDF. <a href="documento.pdf">Baixe o PDF</a>.</p>
-        </object>
+        <div id="pdf-container" style="overflow: scroll; height: 477px"></div>
 
         <!-- <div id="step1">
             <div class="navigation-bar">

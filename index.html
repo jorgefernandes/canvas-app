@@ -156,7 +156,8 @@
 
 <body style="margin: 0">
     <div class="wrapper">
-        <div id="step1" style="display: none">
+        <embed src="{{ asset('images/Nubank_2025-02-10.pdf') }}" type="application/pdf" width="100%" height="600px">
+        <!-- <div id="step1">
             <div class="navigation-bar">
                 <div><button>v</button>
                 </div>
@@ -190,7 +191,7 @@
             </div>
         </div>
 
-        <div id="step3">
+        <div id="step3" style="display: none">
             <div class="navigation-bar">
                 <div><button>v</button>
                 </div>
@@ -202,10 +203,10 @@
                 <canvas style="display: none" id="canvas"></canvas>
             </div>
             <button class="take-photo" id="takePhoto"></button>
-        </div>
+        </div> -->
     </div>
 
-    <script>
+    <!-- <script>
         const video = document.getElementById('video2');
         const canvas = document.getElementById('canvas');
         const context = canvas.getContext('2d');
@@ -355,7 +356,7 @@
 
         // Start the front camera by default when the page loads
         startCamera(currentFacingMode);
-    </script>
+    </script> -->
 </body>
 
 </html>

@@ -4,41 +4,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>PDF com Pinch Zoom</title>
+    <title>PDF com Pinch Zoom e Panning</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
-        #pdf-container {
-            touch-action: none;
-            /* Evita interferência com o zoom padrão */
-            overflow: auto;
-            width: 100%;
-            height: 90vh;
-            position: relative;
+        body {
+            overflow: hidden;
+            /* Evita rolagem do site */
+            margin: 0;
         }
 
-        canvas {
+        #pdf-container {
+            touch-action: none;
+            /* Evita interferência com gestos do navegador */
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #pdf-wrapper {
+            position: absolute;
             transform-origin: 0 0;
-            /* Mantém o ponto de origem no canto superior esquerdo */
+            cursor: grab;
+        }
+
+        #pdf-wrapper:active {
+            cursor: grabbing;
         }
     </style>
 </head>
 
 <body>
-    <h2>PDF com Pinch Zoom</h2>
-    <div id="pdf-container"></div>
+    <div id="pdf-container">
+        <div id="pdf-wrapper"></div>
+    </div>
 
     <script>
         var url = 'images/Nubank_2025-02-10.pdf'; // Caminho do PDF
+        var pdfWrapper = document.getElementById("pdf-wrapper");
         var pdfContainer = document.getElementById("pdf-container");
-        var scaleFactor = 1; // Fator de escala inicial
-        var startDistance = 0; // Distância inicial dos dedos
+
+        var scaleFactor = 1; // Escala inicial
+        var startDistance = 0; // Distância inicial do pinch zoom
+        var startX, startY, isDragging = false, lastX = 0, lastY = 0;
 
         // Carregar o PDF
         pdfjsLib.getDocument(url).promise.then(function (pdf) {
             for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                 pdf.getPage(pageNum).then(function (page) {
                     var canvas = document.createElement("canvas");
-                    pdfContainer.appendChild(canvas);
+                    pdfWrapper.appendChild(canvas);
                     var context = canvas.getContext("2d");
                     var viewport = page.getViewport({ scale: 1 });
 
@@ -51,35 +69,47 @@
             }
         });
 
-        // Função para calcular a distância entre dois dedos
+        // Calcular distância entre dois dedos (para pinch zoom)
         function getDistance(event) {
             var dx = event.touches[0].clientX - event.touches[1].clientX;
             var dy = event.touches[0].clientY - event.touches[1].clientY;
             return Math.sqrt(dx * dx + dy * dy);
         }
 
-        // Evento de toque inicial (pinch start)
+        // Detectar início do toque
         pdfContainer.addEventListener("touchstart", function (event) {
-            if (event.touches.length === 2) { // Se houver dois dedos na tela
+            if (event.touches.length === 2) {
                 startDistance = getDistance(event);
+            } else if (event.touches.length === 1) {
+                isDragging = true;
+                startX = event.touches[0].clientX - lastX;
+                startY = event.touches[0].clientY - lastY;
             }
         });
 
-        // Evento de movimento (pinch zoom)
+        // Movimentar PDF (Panning) ou fazer zoom
         pdfContainer.addEventListener("touchmove", function (event) {
             if (event.touches.length === 2) {
                 var newDistance = getDistance(event);
                 var scaleChange = newDistance / startDistance;
-
                 scaleFactor *= scaleChange;
                 scaleFactor = Math.max(0.5, Math.min(3, scaleFactor)); // Limita o zoom (0.5x a 3x)
 
-                // Aplicar escala no container do PDF
-                pdfContainer.style.transform = `scale(${scaleFactor})`;
-
+                pdfWrapper.style.transform = `scale(${scaleFactor}) translate(${lastX}px, ${lastY}px)`;
                 startDistance = newDistance;
-                event.preventDefault(); // Evita zoom do navegador
+                event.preventDefault(); // Impede o zoom do navegador
+            } else if (event.touches.length === 1 && isDragging && scaleFactor > 1) {
+                lastX = event.touches[0].clientX - startX;
+                lastY = event.touches[0].clientY - startY;
+
+                pdfWrapper.style.transform = `scale(${scaleFactor}) translate(${lastX}px, ${lastY}px)`;
+                event.preventDefault();
             }
+        });
+
+        // Finalizar movimento
+        pdfContainer.addEventListener("touchend", function () {
+            isDragging = false;
         });
     </script>
 </body>

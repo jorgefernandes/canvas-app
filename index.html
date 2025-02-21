@@ -4,35 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>PDF com Pinch Zoom e Panning</title>
+    <title>PDF com Pinch Zoom e Scroll</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
         body {
-            overflow: hidden;
-            /* Evita rolagem do site */
             margin: 0;
+            overflow: hidden;
+            /* Impede rolagem do site */
         }
 
         #pdf-container {
-            touch-action: none;
-            /* Evita interferência com gestos do navegador */
-            overflow: hidden;
             width: 100vw;
             height: 100vh;
-            position: relative;
+            overflow: auto;
+            /* Habilita rolagem quando fizer zoom */
+            touch-action: none;
+            background: #f0f0f0;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: flex-start;
+            position: relative;
         }
 
         #pdf-wrapper {
-            position: absolute;
             transform-origin: 0 0;
-            cursor: grab;
-        }
-
-        #pdf-wrapper:active {
-            cursor: grabbing;
         }
     </style>
 </head>
@@ -43,13 +38,14 @@
     </div>
 
     <script>
-        var url = 'images/Nubank_2025-02-10.pdf'; // Caminho do PDF
+        var url = 'documento.pdf'; // Caminho do PDF
         var pdfWrapper = document.getElementById("pdf-wrapper");
         var pdfContainer = document.getElementById("pdf-container");
 
-        var scaleFactor = 1; // Escala inicial
-        var startDistance = 0; // Distância inicial do pinch zoom
-        var startX, startY, isDragging = false, lastX = 0, lastY = 0;
+        var scaleFactor = 1; // Escala inicial do zoom
+        var startDistance = 0;
+        var isPinching = false;
+        var startScrollTop, startScrollLeft;
 
         // Carregar o PDF
         pdfjsLib.getDocument(url).promise.then(function (pdf) {
@@ -79,38 +75,35 @@
         // Detectar início do toque
         pdfContainer.addEventListener("touchstart", function (event) {
             if (event.touches.length === 2) {
+                isPinching = true;
                 startDistance = getDistance(event);
-            } else if (event.touches.length === 1) {
-                isDragging = true;
-                startX = event.touches[0].clientX - lastX;
-                startY = event.touches[0].clientY - lastY;
+                startScrollTop = pdfContainer.scrollTop;
+                startScrollLeft = pdfContainer.scrollLeft;
             }
         });
 
-        // Movimentar PDF (Panning) ou fazer zoom
+        // Movimentar PDF (Pinch Zoom + Scroll)
         pdfContainer.addEventListener("touchmove", function (event) {
-            if (event.touches.length === 2) {
+            if (isPinching && event.touches.length === 2) {
                 var newDistance = getDistance(event);
                 var scaleChange = newDistance / startDistance;
                 scaleFactor *= scaleChange;
-                scaleFactor = Math.max(0.5, Math.min(3, scaleFactor)); // Limita o zoom (0.5x a 3x)
+                scaleFactor = Math.max(1, Math.min(3, scaleFactor)); // Limita o zoom entre 1x e 3x
 
-                pdfWrapper.style.transform = `scale(${scaleFactor}) translate(${lastX}px, ${lastY}px)`;
+                pdfWrapper.style.transform = `scale(${scaleFactor})`;
+                pdfContainer.scrollTop = startScrollTop * scaleChange;
+                pdfContainer.scrollLeft = startScrollLeft * scaleChange;
+
                 startDistance = newDistance;
                 event.preventDefault(); // Impede o zoom do navegador
-            } else if (event.touches.length === 1 && isDragging && scaleFactor > 1) {
-                lastX = event.touches[0].clientX - startX;
-                lastY = event.touches[0].clientY - startY;
-
-                pdfWrapper.style.transform = `scale(${scaleFactor}) translate(${lastX}px, ${lastY}px)`;
-                event.preventDefault();
             }
         });
 
-        // Finalizar movimento
+        // Finalizar pinch zoom
         pdfContainer.addEventListener("touchend", function () {
-            isDragging = false;
+            isPinching = false;
         });
+
     </script>
 </body>
 

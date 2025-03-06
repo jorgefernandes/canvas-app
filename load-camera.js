@@ -100,6 +100,7 @@ class KycCamera {
                 if (this.facingMode === 'user') {
                     this.video.style.transform = 'scaleX(-1)'; // Espelha apenas a frontal
                 } else {
+                    console.log(this.facingMode);
                     this.video.style.transform = 'scaleX(1)'; // Garante que a traseira não seja invertida
                 }
             };

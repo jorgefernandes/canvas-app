@@ -10,12 +10,11 @@
 
 <body>
     <!-- Apenas o canvas para exibir a câmera -->
-    <canvas id="canvas" width="640" height="480"></canvas>
 
-    <script>
+    <script type="module">
+        import KycCamera from './load-camera.js';
 
-
-        kycCamera = new KycCamera(
+        const kycCamera = new KycCamera(
             'environment',
             247,
             318,
@@ -24,11 +23,11 @@
             'takePhotoSelfie',
         );
 
-        await kycCamera.startCamera(cbSuccess, cbError);
+        kycCamera.startCamera();
     </script>
 
 
-    <div id="step1" data-wrapper class="wrapper-photo-took-step" style="display: none">
+    <div id="step1" data-wrapper class="wrapper-photo-took-step">
         <div style="display: flex; height: 100%;">
             <div class="selfie-bg"></div>
             <video id="videoSelfie" class="video-tag" autoplay playsinline></video>

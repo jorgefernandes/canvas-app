@@ -4,103 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>PDF com Pinch Zoom e Scroll</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-        }
-
-        #pdf-container {
-            width: 100vw;
-            height: 100vh;
-            overflow: auto;
-            /* Permite rolagem */
-            touch-action: none;
-            /* Evita conflitos com o zoom padrão */
-            background: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            position: relative;
-        }
-
-        #pdf-wrapper {
-            transform-origin: top left;
-            transition: transform 0.1s ease-out;
-            /* Suaviza o zoom */
-        }
-    </style>
+    <title>teste camera</title>
+    <script type="module" src="load-camera.js"></script>
 </head>
 
 <body>
-    <div id="pdf-container">
-        <div id="pdf-wrapper"></div>
-    </div>
+    <!-- Apenas o canvas para exibir a câmera -->
+    <canvas id="canvas" width="640" height="480"></canvas>
 
     <script>
-        var url = 'images/Nubank_2025-02-10.pdf'; // Caminho do PDF
-        var pdfWrapper = document.getElementById("pdf-wrapper");
-        var pdfContainer = document.getElementById("pdf-container");
 
-        var scaleFactor = 1; // Escala inicial do zoom
-        var startDistance = 0;
-        var isPinching = false;
 
-        // 🖼️ Carregar o PDF
-        pdfjsLib.getDocument(url).promise.then(function (pdf) {
-            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                pdf.getPage(pageNum).then(function (page) {
-                    var canvas = document.createElement("canvas");
-                    pdfWrapper.appendChild(canvas);
-                    var context = canvas.getContext("2d");
-                    var viewport = page.getViewport({ scale: 1 });
+        kycCamera = new KycCamera(
+            'environment',
+            247,
+            318,
+            'videoSelfie',
+            'canvasSelfie',
+            'takePhotoSelfie',
+        );
 
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
-
-                    var renderContext = { canvasContext: context, viewport: viewport };
-                    page.render(renderContext);
-                });
-            }
-        });
-
-        // 🔎 Função para calcular a distância entre dois dedos (pinch zoom)
-        function getDistance(event) {
-            var dx = event.touches[0].clientX - event.touches[1].clientX;
-            var dy = event.touches[0].clientY - event.touches[1].clientY;
-            return Math.sqrt(dx * dx + dy * dy);
-        }
-
-        // 📌 Detectar início do toque (pinch zoom)
-        pdfContainer.addEventListener("touchstart", function (event) {
-            if (event.touches.length === 2) {
-                isPinching = true;
-                startDistance = getDistance(event);
-            }
-        });
-
-        // ✨ Aplicar zoom no PDF
-        pdfContainer.addEventListener("touchmove", function (event) {
-            if (isPinching && event.touches.length === 2) {
-                var newDistance = getDistance(event);
-                var scaleChange = newDistance / startDistance;
-                scaleFactor *= scaleChange;
-                scaleFactor = Math.max(1, Math.min(3, scaleFactor)); // Limite de zoom 1x a 3x
-
-                pdfWrapper.style.transform = `scale(${scaleFactor})`;
-
-                startDistance = newDistance;
-                event.preventDefault(); // Evita zoom do navegador
-            }
-        });
-
-        // ☑️ Finalizar pinch zoom
-        pdfContainer.addEventListener("touchend", function () {
-            isPinching = false;
-        });
+        await kycCamera.startCamera(cbSuccess, cbError);
     </script>
+
+
+    <div id="step1" data-wrapper class="wrapper-photo-took-step" style="display: none">
+        <div style="display: flex; height: 100%;">
+            <div class="selfie-bg"></div>
+            <video id="videoSelfie" class="video-tag" autoplay playsinline></video>
+            <canvas style="display: none" id="canvasSelfie"></canvas>
+        </div>
+        <button class="take-photo" id="takePhotoSelfie"></button>
+    </div>
+
 </body>
 
 </html>

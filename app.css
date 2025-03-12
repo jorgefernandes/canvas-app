@@ -1,0 +1,547 @@
+:root {
+    --open-sans: normal 300 1.4em "Open Sans", serif;
+    --red-hat-display: normal 300 1.4em "Red Hat Display", serif;
+  }
+  
+  html, body, .wrapper, [data-wrapper] {
+    height: 100%;
+    color: #030517;
+  }
+  
+  * {
+    box-sizing: inherit;
+  }
+  
+  body {
+    box-sizing: border-box;
+  }
+  
+  .modal-alert {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 4;
+    display: none;
+    animation: openModalBg 0.3s;
+  }
+  
+  @keyframes openModalBg {
+    0% {
+      background-color: rgba(0, 0, 0, 0);
+    }
+    100% {
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+  }
+  .modal-alert-wrapper {
+    background-color: #FFF;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    min-width: 300px;
+    font: var(--open-sans);
+    padding: 30px;
+    animation: openModal 0.3s;
+    animation-fill-mode: backwards;
+  }
+  
+  @keyframes openModal {
+    0% {
+      transform: translate(-50%, -50%) scale(0.3);
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+  .modal-alert-title {
+    text-align: center;
+  }
+  
+  .modal-alert-text {
+    font-size: 16px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+  
+  .modal-alert-ok {
+    background-color: #417505;
+    border: 0;
+    color: #FFF;
+    padding: 16px;
+    margin: 0 auto;
+    text-transform: uppercase;
+    border-radius: 4px;
+    min-width: 80px;
+    font: var(--red-hat-display);
+    font-size: 16px;
+  }
+  
+  .modal-alert-btn-wrapper {
+    text-align: center;
+  }
+  
+  .modal-alert-content {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .selfie-bg {
+    width: 100vw;
+    height: 100%;
+    margin: 0;
+    background-image: url("../images/bg-kyc-camera.png");
+    background-position: center;
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+  }
+  
+  .doc-bg {
+    width: 100vw;
+    height: 100%;
+    margin: 0;
+    background-image: url("../images/bg-kyc-camera-doc.png");
+    background-position: center;
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+  }
+  @media (max-width: 375px) {
+    .doc-bg {
+      background-image: url(../images/bg-kyc-camera-doc-2.png);
+    }
+  }
+  @media (max-height: 720px) {
+    .doc-bg {
+      background-image: url(../images/bg-kyc-camera-doc-2.png);
+    }
+  }
+  @media (max-height: 600px) {
+    .doc-bg {
+      background-image: url(../images/bg-kyc-camera-doc-3.png);
+    }
+  }
+  
+  .wrapper {
+    position: relative;
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+  }
+  
+  .video-tag {
+    transform: scaleX(-1);
+    max-width: 100%;
+    border: 1px solid black;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100%;
+    -o-object-fit: cover;
+       object-fit: cover;
+  }
+  
+  .take-photo {
+    width: 72px;
+    height: 72px;
+    border-radius: 100%;
+    border: 3px solid white;
+    position: absolute;
+    z-index: 3;
+    bottom: 48px;
+    left: 50%;
+    margin-left: -36px;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .take-photo::before {
+    content: "";
+    width: 56px;
+    height: 56px;
+    background: white;
+    background-color: #fff;
+    display: block;
+    border-radius: 100%;
+    flex: 0 0 56px;
+  }
+  
+  .navigation-bar {
+    height: 81px;
+    background-color: rgba(3, 5, 23, 0.5);
+    position: absolute;
+    z-index: 4;
+    width: 100%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .navigation-bar-button {
+    background-color: transparent;
+    border: none;
+    position: absolute;
+    margin-left: 25px;
+  }
+  
+  .navigation-bar .text {
+    flex: 1;
+    text-align: center;
+    font-family: "Open Sans";
+    font-size: 18px;
+  }
+  
+  .buttons-wrapper {
+    position: absolute;
+    z-index: 3;
+    bottom: 76px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 60px;
+    box-sizing: border-box;
+  }
+  
+  .btn-avancar {
+    color: #FFF;
+    font-size: 16px;
+    background-color: transparent;
+    border: 0;
+  }
+  
+  .buttons-wrapper-left {
+    position: absolute;
+    left: 20px;
+  }
+  
+  .pinch-zoom-parent {
+    width: 100vw;
+    height: 460px;
+  }
+  @media screen and (max-width: 375px) {
+    .pinch-zoom-parent {
+      width: 70vw;
+      height: 380px;
+    }
+  }
+  
+  .buttons-wrapper-right {
+    position: absolute;
+    right: 20px;
+  }
+  
+  .buttons-wrapper-center {
+    transform: translate(-50%, 0);
+    position: absolute;
+    left: 50%;
+  }
+  
+  .buttons-wrapper .take-photo {
+    position: relative;
+    bottom: 0;
+    flex: 1 0 0 72px;
+  }
+  
+  .buttons-wrapper .upload-photo {
+    width: 52px;
+    height: 52px;
+    background-color: transparent;
+    border-radius: 100%;
+    border: 2px solid white;
+    background-image: url("../images/upload-solid.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 24px;
+    display: block;
+  }
+  
+  .wrapper-photo-took {
+    /* display: flex; */
+    width: 100%;
+    /* flex-direction: column; */
+    /* align-items: center; */
+    height: 100%;
+    padding-top: 0;
+    box-sizing: border-box;
+    text-align: center;
+    padding-top: 82px;
+  }
+  @media screen and (max-width: 375px) {
+    .wrapper-photo-took {
+      padding-top: 87px;
+    }
+  }
+  
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #ddd;
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin 0.5s linear infinite;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .loading-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: white;
+    z-index: 5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .wrapper-photo-took-wrapper {
+    flex: 1;
+    /* padding-top: 82px; */
+    display: flex;
+    align-items: center;
+    height: calc(100% - 96px);
+    justify-content: center;
+    flex-direction: column;
+    position: relative;
+    top: 0;
+  }
+  
+  .wrapper-photo-took-title {
+    line-height: 1.3em;
+    font: var(--open-sans);
+    font-size: 24px;
+  }
+  
+  .wrapper-photo-took-image {
+    overflow: hidden;
+    margin: 5% auto 0;
+    width: 247px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .wrapper-photo-took-image-large {
+    overflow: hidden;
+    margin: 5% auto 0;
+    width: 308px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .wrapper-photo-took-wrapper-photo {
+    text-align: center;
+    width: 100%;
+  }
+  
+  .title-capture-screen {
+    position: absolute;
+    top: 120px;
+    width: 100%;
+    text-align: center;
+    color: #FFF;
+    z-index: 4;
+    font: var(--open-sans);
+  }
+  @media (max-height: 700px) {
+    .title-capture-screen {
+      top: 90px;
+    }
+  }
+  @media (max-width: 375px) {
+    .title-capture-screen {
+      top: 90px;
+    }
+  }
+  
+  .wrapper-photo-took-btn-continuar {
+    display: inline-flex;
+    width: 327px;
+    height: 35px;
+    flex-shrink: 0;
+    border-radius: 2px;
+    background-color: #030517;
+    text-transform: uppercase;
+    color: #FFF;
+    text-decoration: none;
+    text-align: center;
+    font: var(--red-hat-display);
+    font-size: 14px;
+    justify-content: center;
+    align-items: center;
+    font-weight: 500;
+  }
+  
+  .wrapper-photo-took-btn-another-photo {
+    color: #397EC4;
+    text-align: center;
+    font: var(--open-sans);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    display: block;
+    margin: 15px 0;
+    text-decoration: none;
+    background-color: transparent;
+    border: 0;
+    width: 100%;
+  }
+  
+  .wrapper-photo-took-step {
+    min-height: 660px;
+  }
+  
+  .content-screen {
+    max-width: 375px;
+    margin: 0 auto;
+    padding: 27px;
+    font: var(--open-sans);
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 617px;
+  }
+  
+  .content-screen-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+  
+  .content-screen-title-0 {
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.9em;
+  }
+  
+  .content-screen-title-1 {
+    font-size: 24px;
+    font-weight: 400;
+    margin: 0 0 25px 0;
+    line-height: 1.6em;
+    color: #6F6F6F;
+  }
+  
+  .content-screen-text-default {
+    font-size: 14px;
+    line-height: normal;
+    margin: 18px 0;
+  }
+  
+  .content-screen-text-default-center {
+    text-align: center;
+  }
+  
+  .content-screen-buttons-wrapper {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .content-screen-icon-smile {
+    margin-bottom: 16px;
+  }
+  
+  .content-screen-instructions {
+    padding: 0;
+    margin-top: 35px;
+  }
+  
+  .content-screen-instructions-item {
+    list-style-type: none;
+    background-position: left center;
+    margin: 24px 0;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+  }
+  
+  .content-screen-instructions-item-image {
+    width: 40px;
+    display: inline-flex;
+    justify-content: center;
+  }
+  
+  .content-screen-instructions-item--welcome-1 {
+    background-image: url("../images/lightbulb-cfl-on-light.png");
+    background-size: 40px;
+  }
+  
+  .content-screen-instructions-item--welcome-2 {
+    background-image: url("../images/glasses-light.png");
+    background-size: 36px;
+  }
+  
+  .content-screen-instructions-item--welcome-3 {
+    background-image: url("../images/eye-light.png");
+    background-size: 36px;
+  }
+  
+  .content-screen-instructions-item--document-1 {
+    background-image: url("../images/address-card-regular.png");
+    background-size: 40px;
+  }
+  
+  .content-screen-instructions-item--document-2 {
+    background-image: url("../images/car-side-solid.png");
+    background-size: 36px;
+  }
+  
+  .content-screen-instructions-item--document-3 {
+    background-image: url("../images/passport-solid.png");
+    background-size: 36px;
+  }
+  
+  .content-screen-instructions-item--comprovante-1 {
+    background-image: url("../images/lightbulb-regular.png");
+    background-size: 40px;
+  }
+  
+  .content-screen-instructions-item--comprovante-2 {
+    background-image: url("../images/mobile-screen-button-solid.png");
+    background-size: 36px;
+  }
+  
+  .content-screen-instructions-item--comprovante-3 {
+    background-image: url("../images/wifi-solid.png");
+    background-size: 31px;
+  }
+  
+  .content-screen-instructions-item--comprovante-4 {
+    background-image: url("../images/faucet-solid.png");
+    background-size: 36px;
+  }
+  
+  .content-screen-text-success {
+    color: #A7BB9A;
+    font-weight: 700;
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 42px;
+  }
+  
+  .content-screen-content-success {
+    text-align: center;
+  }
+  

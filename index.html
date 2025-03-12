@@ -1,40 +1,363 @@
-<!DOCTYPE html>
-<html lang="pt">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>teste camera</title>
-    <script type="module" src="load-camera.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYC Captura | Etiqueta Única</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&amp;family=Red+Hat+Display:wght@600&amp;display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://api-feat--kyc-tela-captura.eubeta.com.br/css/app.css">
+    <script type="text/javascript">
+        const apiBaseUrl = "https://api-feat--kyc-tela-captura.eubeta.com.br";
+    </script>
+    <script type="module" src="./dist/app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 </head>
 
-<body>
-    <!-- Apenas o canvas para exibir a câmera -->
-
-    <script type="module">
-        import KycCamera from './load-camera.js';
-
-        const kycCamera = new KycCamera(
-            'environment',
-            247,
-            318,
-            'videoSelfie',
-            'canvasSelfie',
-            'takePhotoSelfie',
-        );
-
-        kycCamera.startCamera();
-    </script>
-
-
-    <div id="step1" data-wrapper class="wrapper-photo-took-step">
-        <div style="display: flex; height: 100%;">
-            <div class="selfie-bg"></div>
-            <video id="videoSelfie" class="video-tag" autoplay playsinline></video>
-            <canvas style="display: none" id="canvasSelfie"></canvas>
+<body style="margin: 0 !important;">
+    <div id="spinner" style="display: none;">
+        <div class="loading-screen">
+            <div class="spinner"></div>
         </div>
-        <button class="take-photo" id="takePhotoSelfie"></button>
     </div>
+    <div class="wrapper">
+        <div class="modal-alert" id="modal">
+            <div class="modal-alert-wrapper">
+                <div class="modal-alert-title">Oops...</div>
+                <div class="modal-alert-content">
+                    <div class="modal-alert-text">
+                        Não é possível acessar a câmera. Por favor, certifique-se de ter concedido permissão.
+                    </div>
+                    <div class="modal-alert-btn-wrapper">
+                        <button class="modal-alert-ok">Ok</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="baterSelfie" data-wrapper="" class="wrapper-photo-took-step" style="display: block;">
+            <div class="navigation-bar">
+                <button data-navigate-to="welcome" class="navigation-bar-button"><img width="10"
+                        src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/arrow-left.png" alt=""></button>
+                <span class="text">Tirar selfie</span>
+            </div>
+            <div style="display: flex; height: 100%;">
+                <div class="selfie-bg"></div>
+                <video id="videoSelfie" class="video-tag" autoplay="" playsinline=""
+                    style="transform: scaleX(-1);"></video>
+                <canvas style="display: none" id="canvasSelfie" width="1080" height="1920"></canvas>
+            </div>
+            <button class="take-photo" id="takePhotoSelfie"></button>
+        </div>
+
+        <div id="visualizarSelfie" data-wrapper="" class="wrapper-photo-took-step" style="display: none">
+            <div class="navigation-bar">
+                <button data-navigate-to="baterSelfie" class="navigation-bar-button"><img width="10"
+                        src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/arrow-left.png" alt=""></button>
+                <span class="text">Conferir Selfie</span>
+            </div>
+            <div class="wrapper-photo-took">
+                <div class="wrapper-photo-took-wrapper">
+
+                    <span class="wrapper-photo-took-title">Sua Selfie ficou boa?</span>
+
+                    <div class="wrapper-photo-took-image">
+                        <div id="photo"></div>
+                    </div>
+
+                </div>
+
+                <div>
+                    <button id="salvar-selfie" data-navigate-to="documentScreen" href=""
+                        class="wrapper-photo-took-btn-continuar">Sim! Continuar</button>
+                    <button data-navigate-to="baterSelfie" class="wrapper-photo-took-btn-another-photo">Quero tirar a
+                        foto
+                        novamente</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="documentScreen" data-wrapper="" style="display: none">
+            <div class="content-screen">
+                <div class="content-screen-content">
+                    <div>
+                        <div class="content-screen-icon-smile">
+                            <img width="68"
+                                src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/id-viewfinder-light.png">
+                        </div>
+                        <p class="content-screen-title-0">agora precisamos capturar seu</p>
+                        <p class="content-screen-title-1">Documento de Identidade</p>
+
+                        <p class="content-screen-text-default">
+                            Precisamos da foto frente e verso do seu documento de identificação. O documento precisa
+                            estar <strong>legível e dentro do prazo de validade</strong>.
+                        </p>
+
+                        <p class="content-screen-text-default">
+                            Documentos aceitos:
+                        </p>
+
+                        <ol class="content-screen-instructions">
+                            <li class="content-screen-instructions-item content-screen-text-default">
+                                <span class="content-screen-instructions-item-image"><img width="40"
+                                        src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/address-card-regular.png"></span>
+                                <span><strong>RG</strong><br>
+                                    Somente documento físico</span>
+                            </li>
+                            <li class="content-screen-instructions-item content-screen-text-default">
+                                <span class="content-screen-instructions-item-image"><img width="39"
+                                        src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/car-side-solid.png"></span>
+                                <span><strong>CNH</strong><br>
+                                    Física ou digital</span>
+                            </li>
+                            <li class="content-screen-instructions-item content-screen-text-default">
+                                <span class="content-screen-instructions-item-image"><img width="30"
+                                        src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/passport-solid.png"></span>
+                                <span><strong>Passaporte</strong><br>
+                                    Documento físico</span>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="content-screen-buttons-wrapper">
+                    <button data-navigate-to="capturaFrenteDocumento" class="wrapper-photo-took-btn-continuar">Ok, Vamos
+                        lá!</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="capturaFrenteDocumento" data-wrapper="" class="wrapper-photo-took-step" style="display: none">
+            <div class="navigation-bar">
+                <button data-navigate-to="baterSelfie" class="navigation-bar-button"><img width="10"
+                        src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/arrow-left.png" alt=""></button>
+                <span class="text">Captura do Documento</span>
+            </div>
+            <div style="display: flex; height: 100%;">
+                <span class="title-capture-screen"><strong>Frente</strong> do Documento</span>
+                <div class="doc-bg"></div>
+                <video id="videoDocumentFrente" class="video-tag" autoplay="" playsinline=""></video>
+                <canvas style="display: none" id="canvasDocumentFrente"></canvas>
+            </div>
+            <div class="buttons-wrapper">
+                <div class="buttons-wrapper-left">
+                    <label for="uploadDocumentFrente" class="upload-photo">
+                        <input style="display: none" accept="image/*,application/pdf" id="uploadDocumentFrente"
+                            type="file">
+                    </label>
+                </div>
+                <div class="buttons-wrapper-center">
+                    <button class="take-photo" id="takePhotoDocumentFrente"></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="visualizaFrenteDocumento" data-wrapper="" class="wrapper-photo-took-step" style="display: none">
+            <div class="navigation-bar">
+                <button data-navigate-to="capturaFrenteDocumento" class="navigation-bar-button"><img width="10"
+                        src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/arrow-left.png" alt=""></button>
+                <span class="text">Conferir Documento</span>
+            </div>
+            <div class="wrapper-photo-took">
+                <div class="wrapper-photo-took-wrapper">
+
+                    <span class="wrapper-photo-took-title">A frente do documento está legível?</span>
+
+                    <div class="wrapper-photo-took-image wrapper-photo-took-image-large">
+                        <div class="page pinch-zoom-parent">
+                            <div id="photoDocumentFrente"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div>
+                    <button data-navigate-to="capturaVersoDocumento" href=""
+                        class="wrapper-photo-took-btn-continuar">Sim! Continuar</button>
+                    <button data-navigate-to="capturaFrenteDocumento" class="wrapper-photo-took-btn-another-photo">Quero
+                        tirar a foto
+                        novamente</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="capturaVersoDocumento" data-wrapper="" class="wrapper-photo-took-step" style="display: none">
+            <div class="navigation-bar">
+                <button data-navigate-to="capturaFrenteDocumento" class="navigation-bar-button"><img width="10"
+                        src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/arrow-left.png" alt=""></button>
+                <span class="text">Captura do Documento</span>
+            </div>
+            <div style="display: flex; height: 100%;">
+                <span class="title-capture-screen"><strong>Verso</strong> do Documento</span>
+                <div class="doc-bg"></div>
+                <video id="videoDocumentVerso" class="video-tag" autoplay="" playsinline=""></video>
+                <canvas style="display: none" id="canvasDocumentVerso"></canvas>
+            </div>
+            <div class="buttons-wrapper">
+                <div class="buttons-wrapper-left">
+                    <label for="uploadDocumentVerso" class="upload-photo">
+                        <input style="display: none" accept="image/*,application/pdf" id="uploadDocumentVerso"
+                            type="file">
+                    </label>
+                </div>
+                <div class="buttons-wrapper-center">
+                    <button class="take-photo" id="takePhotoDocumentVerso"></button>
+                </div>
+                <div class="buttons-wrapper-right">
+                    <button data-navigate-to="comprovanteScreen" class="btn-avancar">
+                        Avançar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="visualizaVersoDocumento" data-wrapper="" class="wrapper-photo-took-step" style="display: none">
+            <div class="navigation-bar">
+                <button data-navigate-to="capturaVersoDocumento" class="navigation-bar-button"><img width="10"
+                        src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/arrow-left.png" alt=""></button>
+                <span class="text">Conferir Documento</span>
+            </div>
+            <div class="wrapper-photo-took">
+                <div class="wrapper-photo-took-wrapper">
+
+                    <span class="wrapper-photo-took-title">O verso do documento está legível?</span>
+
+                    <div class="wrapper-photo-took-image wrapper-photo-took-image-large">
+                        <div class="page pinch-zoom-parent">
+                            <div id="photoDocumentVerso"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div>
+                    <button data-navigate-to="comprovanteScreen" href="" class="wrapper-photo-took-btn-continuar">Sim!
+                        Continuar</button>
+                    <button data-navigate-to="capturaVersoDocumento" class="wrapper-photo-took-btn-another-photo">Quero
+                        tirar a foto
+                        novamente</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="comprovanteScreen" data-wrapper="" style="display: none">
+            <div class="content-screen">
+                <div class="content-screen-content">
+                    <div>
+                        <div class="content-screen-icon-smile">
+                            <img width="68"
+                                src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/id-viewfinder-light.png">
+                        </div>
+                        <p class="content-screen-title-0">para finalizar, precisamos do seu </p>
+                        <p class="content-screen-title-1">Comprovante de Endereço</p>
+
+                        <p class="content-screen-text-default">
+                            Precisamos da foto de um comprovante de endereço <strong>recente e em seu nome ou de parente
+                                próximo</strong>.
+                        </p>
+
+                        <p class="content-screen-text-default">
+                            Alguns exemplos:
+                        </p>
+
+                        <ol class="content-screen-instructions">
+                            <li class="content-screen-instructions-item content-screen-text-default">
+                                <span class="content-screen-instructions-item-image"><img width="34"
+                                        src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/lightbulb-regular.png"></span>
+                                <span><strong>Conta de luz</strong><br>
+                                    Física ou digital</span>
+                            </li>
+                            <li class="content-screen-instructions-item content-screen-text-default">
+                                <span class="content-screen-instructions-item-image"><img width="34"
+                                        src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/mobile-screen-button-solid.png"></span>
+                                <span><strong>Conta de telefone</strong><br>
+                                    Física ou digital</span>
+                            </li>
+                            <li class="content-screen-instructions-item content-screen-text-default">
+                                <span class="content-screen-instructions-item-image"><img width="40"
+                                        src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/wifi-solid.png"></span>
+                                <span><strong>Conta de internet</strong><br>
+                                    Física ou digital</span>
+                            </li>
+                            <li class="content-screen-instructions-item content-screen-text-default">
+                                <span class="content-screen-instructions-item-image"><img width="39"
+                                        src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/faucet-solid.png"></span>
+                                <span><strong>Conta de água</strong><br>
+                                    Física ou digital</span>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="content-screen-buttons-wrapper">
+                    <button data-navigate-to="capturaComprovante" class="wrapper-photo-took-btn-continuar">Ok, Vamos
+                        lá!</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="capturaComprovante" data-wrapper="" class="wrapper-photo-took-step" style="display: none">
+            <div class="navigation-bar">
+                <button data-navigate-to="documentScreen" class="navigation-bar-button"><img width="10"
+                        src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/arrow-left.png" alt=""></button>
+                <span class="text">Comprovante de endereço</span>
+            </div>
+            <div style="display: flex; height: 100%;">
+                <div class="doc-bg"></div>
+                <video id="videoComprovante" class="video-tag" autoplay="" playsinline=""></video>
+                <canvas style="display: none" id="canvasComprovante"></canvas>
+            </div>
+            <div class="buttons-wrapper">
+                <div class="buttons-wrapper-left">
+                    <label for="uploadComprovante" class="upload-photo">
+                        <input style="display: none" accept="image/*,application/pdf" id="uploadComprovante"
+                            type="file">
+                    </label>
+                </div>
+                <div class="buttons-wrapper-center">
+                    <button class="take-photo" id="takePhotoComprovante"></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="visualizaComprovante" data-wrapper="" class="wrapper-photo-took-step" style="display: none">
+            <div class="navigation-bar">
+                <button data-navigate-to="capturaComprovante" class="navigation-bar-button"><img width="10"
+                        src="https://api-feat--kyc-tela-captura.eubeta.com.br/images/arrow-left.png" alt=""></button>
+                <span class="text">Conferir Comprovante</span>
+            </div>
+            <div class="wrapper-photo-took">
+                <div class="wrapper-photo-took-wrapper">
+
+                    <span class="wrapper-photo-took-title">Seu endereço está legível?</span>
+
+                    <div class="wrapper-photo-took-image wrapper-photo-took-image-large">
+                        <div class="page pinch-zoom-parent">
+                            <div id="photoComprovante"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div>
+                    <button id="send-images" href="" class="wrapper-photo-took-btn-continuar">Sim! Continuar</button>
+                    <button data-navigate-to="capturaComprovante" class="wrapper-photo-took-btn-another-photo">Quero
+                        tirar a foto
+                        novamente</button>
+                </div>
+            </div>
+        </div>
+
+        <textarea id="baseSelfie" style="display: none" rows="5" cols="50" readonly=""></textarea>
+        <textarea id="base64DocumentoFrente" style="display: none" rows="5" cols="50" readonly=""></textarea>
+        <textarea id="base64DocumentoVerso" style="display: none" rows="5" cols="50" readonly=""></textarea>
+        <textarea id="base64Comprovante" style="display: none" rows="5" cols="50" readonly=""></textarea>
+    </div>
+
+
 
 </body>
 
